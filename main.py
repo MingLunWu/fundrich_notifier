@@ -75,9 +75,9 @@ with Safari() as driver:
                     message += "{}: {}<br>".format(a_key, parsed_value[a_key])
     message += "</body></body>"
     # 第三方 SMTP 服务
-    mail_host="smtp.gmail.com"  
-    mail_user="tmtoolcmnsysu@gmail.com"   
-    mail_pass="lab3024-1"  
+    mail_host= "smtp.gmail.com"  
+    mail_user= conf["stp_user"]   
+    mail_pass= conf["stp_password"]
     
     
     sender = 'from@runoob.com'
