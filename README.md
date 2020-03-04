@@ -1,4 +1,8 @@
 # fund_notification
+## 0304
++ 成功改用Send Request方式取得資料
++ send_request() 中的base_data還是只能複製網站上的，可以再找找有沒有其他適用的API.
++ Mail問題還沒解決！
 ## 0224
 + 目前已經有基本爬取資訊功能。
 + 寄送信息到信箱需要點擊更多才能查看 (並非本文)
