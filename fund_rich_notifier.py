@@ -106,7 +106,7 @@ class Fund_Rich_Notifier():
 		:return: List of fund informaiton.
 		"""
 		assert type(transaction_json) is dict
-		res_detail = res["Data"]["TRADE_LISTS"]
+		res_detail = transaction_json["Data"]["TRADE_LISTS"]
 		parsed_res = [{key: tmp[key] for key in tmp.keys() & {"FUND_SH_NM", "FUND_CURRENCY_NM","RSP_TWD_BAL_COST","RSP_MARKET_VALUE","RSP_GL_AMT","RSP_ROI_RATE_DIV","RSP_R_UNIT"}} for tmp in res_detail]
 		return parsed_res
 	
