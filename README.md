@@ -1,5 +1,5 @@
 # fund_notification
-這個Script是用來替代基富通(www.fundrich.com.tw)先前所推出的「基金淨值通知」Line bot。
+這個Script是用來替代[基富通](www.fundrich.com.tw)先前所推出的「基金淨值通知」Line bot。
 會自動登入後取得所需的基金資訊，將其寄送至使用者的信箱。
 ## How to use
 ### Package
