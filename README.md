@@ -5,7 +5,7 @@
 ### Package
 ``` pip install -r requirements.txt ```
 ### 撰寫config.ini
-需要將以下資訊寫到```config.ini```檔案中：
+需要將以下資訊寫到```config.ini```檔案(在專案資料夾中自行新增)中：
 + 基富通：
     - 基富通帳號
     - 基富通密碼
