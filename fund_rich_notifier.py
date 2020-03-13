@@ -77,6 +77,10 @@ class Fund_Rich_Notifier():
 				"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36"
 			}
 
+			######################################
+			# 以下區塊需要放置屬於自己的payload_data #
+			#####################################
+			
 			payload_data_check = {
 				"VENDER_ID":"",
 				"BF_NO":res_login["BFNo"],
@@ -134,7 +138,7 @@ class Fund_Rich_Notifier():
 		html+="""</table>"""
 		return html
 	
-	def send_mail(self, html, receivers=['allen6997535@gmail.com']):
+	def send_mail(self, html, receivers):
 		# 第三方 SMTP 服务
 		mail_host="smtp.gmail.com"  #设置服务器
 		
@@ -164,8 +168,10 @@ if __name__ == "__main__":
 	conf.read("config.ini", encoding='utf-8')
 	conf = dict(conf.items('password'))
 
+	receivers = [] #這邊填寫你自己的Email.
+
 	n = Fund_Rich_Notifier(conf["user_id"], conf["password"], conf["stp_user"], conf["stp_password"])	
 	res = n.send_request()
 	parsed_res = n.parse_result(res)
 	html = n.transition_to_html(parsed_res)
-	n.send_mail(html)
+	n.send_mail(html, receivers)
