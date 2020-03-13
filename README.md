@@ -1,9 +1,29 @@
 # fund_notification
-## 0304
-+ 成功改用Send Request方式取得資料
-+ send_request() 中的base_data還是只能複製網站上的，可以再找找有沒有其他適用的API.
-+ Mail問題還沒解決！
-## 0224
-+ 目前已經有基本爬取資訊功能。
-+ 寄送信息到信箱需要點擊更多才能查看 (並非本文)
-+ 仍然會遭遇到資訊重複的問題 (可能要再確認一下其他欄位是不是更適合)
+這個Script是用來替代基富通(www.fundrich.com.tw)先前所推出的「基金淨值通知」Line bot。
+會自動登入後取得所需的基金資訊，將其寄送至使用者的信箱。
+## How to use
+### Package
+``` pip install -r requirements.txt ```
+### 撰寫config.ini
+需要將以下資訊寫到```config.ini```檔案中：
++ 基富通：
+    - 基富通帳號
+    - 基富通密碼
++ SMTP： (寄送給你資訊的信箱)
+    - 信箱帳號
+    - 信箱密碼
+
+格式請按照以下: 
+```python
+[password]
+user_id = <Your fundrich user_id>
+password = <Your fundrich passwor>
+stp_user = <Your stp mail user>
+stp_password = <Your stp mail password>
+```
+
+## 更改main.py中的receiver
+將`main.py`中的`receiver`變數改為自己的email欄位。
+
+## 執行main.py
+`python main.py`
