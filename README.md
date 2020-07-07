@@ -1,11 +1,11 @@
 # fund_notification
-這個Script是用來替代基富通(www.fundrich.com.tw)先前所推出的「基金淨值通知」Line bot。
+這個Script是用來替代[基富通](www.fundrich.com.tw)先前所推出的「基金淨值通知」Line bot。
 會自動登入後取得所需的基金資訊，將其寄送至使用者的信箱。
 ## How to use
 ### Package
 ``` pip install -r requirements.txt ```
 ### 撰寫config.ini
-需要將以下資訊寫到```config.ini```檔案中：
+需要將以下資訊寫到```config.ini```檔案(在專案資料夾中自行新增)中：
 + 基富通：
     - 基富通帳號
     - 基富通密碼
