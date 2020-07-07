@@ -110,31 +110,46 @@ class Fund_Rich_Notifier():
 		:return: List of fund informaiton.
 		"""
 		assert type(transaction_json) is dict
+		result = list()
 		res_detail = transaction_json["Data"]["TRADE_LISTS"]
-		parsed_res = [{key: tmp[key] for key in tmp.keys() & {"FUND_SH_NM", "FUND_CURRENCY_NM","RSP_TWD_BAL_COST","RSP_MARKET_VALUE","RSP_GL_AMT","RSP_ROI_RATE_DIV","RSP_R_UNIT"}} for tmp in res_detail]
-		return parsed_res
+		for fund in res_detail:
+			fund_name = fund["FUND_SH_NM"] # 基金名稱
+			etd_bal_cost = fund["ETD_BAL_COST"] # 單筆申購本金
+			rsp_etd_bal_cost = fund["RSP_ETD_BAL_COST"] # 定期定額本金
+			gl_amt = fund["GL_AMT"] # 單筆申購參考損益
+			rsp_gl_amt = fund["RSP_GL_AMT"] # 定期定額參考損益
+
+			bal_cost = etd_bal_cost+rsp_etd_bal_cost # 總本金
+			amt = gl_amt + rsp_gl_amt # 總損益
+			rate = amt / bal_cost
+
+			result.append({"name": fund_name, "bal_cost": bal_cost, "amt": amt, "rate":round(rate*100, 2)})
+
+		return result
 	
 	def transition_to_html(self, json_data):
-		html = """<table border="1px solid">"""
+		html = """<table border="1px solid" style="text-align:center">"""
 		translation_dict = collections.OrderedDict()
-		translation_dict["FUND_SH_NM"]="基金名稱"
-		translation_dict["RSP_R_UNIT"]="庫存單位數"
-		translation_dict["FUND_CURRENCY_NM"]="計價幣別"
-		translation_dict["RSP_TWD_BAL_COST"]="總庫存成本"
-		translation_dict["RSP_MARKET_VALUE"]="總帳面市值"
-		translation_dict["RSP_GL_AMT"]="參考損益"
-		translation_dict["RSP_ROI_RATE_DIV"] = "交易報酬率"
+		translation_dict["name"]="基金名稱"
+		translation_dict["bal_cost"]="總庫存成本"
+		translation_dict["amt"]="總獲利"
+		translation_dict["rate"]="總獲利率"
+		
 
 		for a_fund in json_data:
 			for a_key in translation_dict.keys():
-				if a_key != "RSP_GL_AMT" and a_key != "RSP_ROI_RATE_DIV":
+				if a_key != "rate" and a_key != "amt":
 					html+="""<tr><td>{}</td><td>{}</td></tr>""".format(translation_dict[a_key], a_fund[a_key])
+				elif a_key == "rate":
+					if a_fund[a_key] < 0:
+						html+="""<tr><td>{}</td><td><font color="green">{}%</font></td></tr>""".format(translation_dict[a_key], a_fund[a_key])
+					else:
+						html+="""<tr><td>{}</td><td><font color="red">{}%</font></td></tr>""".format(translation_dict[a_key], a_fund[a_key])
 				else:
 					if a_fund[a_key] < 0:
 						html+="""<tr><td>{}</td><td><font color="green">{}</font></td></tr>""".format(translation_dict[a_key], a_fund[a_key])
 					else:
 						html+="""<tr><td>{}</td><td><font color="red">{}</font></td></tr>""".format(translation_dict[a_key], a_fund[a_key])
-		
 		html+="""</table>"""
 		return html
 	
@@ -145,13 +160,13 @@ class Fund_Rich_Notifier():
 		sender = 'from@runoob.com'
 		
 		message = MIMEText(html, 'html', 'utf-8')
-		message['From'] = Header("小基富通機器人", 'utf-8')
+		message['From'] = Header("基富通機器人", 'utf-8')
 		message['To'] =  Header("Allen_Wu", 'utf-8')
 		
 		subject = '本日基富通基金資訊'
 		message['Subject'] = Header(subject, 'utf-8')
 		
-		try:
+		""" try:
 			smtpObj = smtplib.SMTP(mail_host, 25) 
 			# smtpObj.connect(mail_host, 25)    # 25 为 SMTP 端口号
 			smtpObj.ehlo()  # 向Gamil傳送SMTP 'ehlo' 命令
@@ -160,7 +175,15 @@ class Fund_Rich_Notifier():
 			smtpObj.sendmail(sender, receivers, message.as_string())
 			print("郵件發送成功")
 		except smtplib.SMTPException:
-			print("Error: 無法發送郵件")
+			print("Error: 無法發送郵件") """
+		
+		smtpObj = smtplib.SMTP(mail_host, 25) 
+		# smtpObj.connect(mail_host, 25)    # 25 为 SMTP 端口号
+		smtpObj.ehlo()  # 向Gamil傳送SMTP 'ehlo' 命令
+		smtpObj.starttls()
+		smtpObj.login(self.mail_user,self.mail_password)  
+		smtpObj.sendmail(sender, receivers, message.as_string())
+		print("郵件發送成功")
 		
 
 if __name__ == "__main__":
