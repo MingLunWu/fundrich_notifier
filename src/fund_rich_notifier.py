@@ -188,7 +188,7 @@ class Fund_Rich_Notifier():
 
 if __name__ == "__main__":
 	conf = configparser.ConfigParser()
-	conf.read("config.ini", encoding='utf-8')
+	conf.read("/Users/minglunwu/Documents/fund_notification/config.ini", encoding='utf-8')
 	conf = dict(conf.items('password'))
 
 	receivers = [] #這邊填寫你自己的Email.
