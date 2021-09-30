@@ -11,13 +11,10 @@ import collections
 
 class Fund_Rich_Notifier():
 	
-	def __init__(self, user_id, password, mail_user, mail_password):
+	def __init__(self, user_id, password):
 		self.Id = user_id
 		self.Password = password
 		self.s = None # Request Session
-
-		self.mail_user = mail_user
-		self.mail_password = mail_password
 
 		self.LOGIN_URL = "https://www.fundrich.com.tw/FundWeb/WS/loginweb.aspx"
 		self.GET_TRADE_URL = "https://www.fundrich.com.tw/ECGWToApi2/api2/GetTradeInfo"
@@ -153,37 +150,6 @@ class Fund_Rich_Notifier():
 		html+="""</table>"""
 		return html
 	
-	def send_mail(self, html, receivers):
-		# 第三方 SMTP 服务
-		mail_host="smtp.gmail.com"  #设置服务器
-		
-		sender = 'from@runoob.com'
-		
-		message = MIMEText(html, 'html', 'utf-8')
-		message['From'] = Header("基富通機器人", 'utf-8')
-		message['To'] =  Header("Allen_Wu", 'utf-8')
-		
-		subject = '本日基富通基金資訊'
-		message['Subject'] = Header(subject, 'utf-8')
-		
-		""" try:
-			smtpObj = smtplib.SMTP(mail_host, 25) 
-			# smtpObj.connect(mail_host, 25)    # 25 为 SMTP 端口号
-			smtpObj.ehlo()  # 向Gamil傳送SMTP 'ehlo' 命令
-			smtpObj.starttls()
-			smtpObj.login(self.mail_user,self.mail_password)  
-			smtpObj.sendmail(sender, receivers, message.as_string())
-			print("郵件發送成功")
-		except smtplib.SMTPException:
-			print("Error: 無法發送郵件") """
-		
-		smtpObj = smtplib.SMTP(mail_host, 25) 
-		# smtpObj.connect(mail_host, 25)    # 25 为 SMTP 端口号
-		smtpObj.ehlo()  # 向Gamil傳送SMTP 'ehlo' 命令
-		smtpObj.starttls()
-		smtpObj.login(self.mail_user,self.mail_password)  
-		smtpObj.sendmail(sender, receivers, message.as_string())
-		print("郵件發送成功")
 		
 
 if __name__ == "__main__":
@@ -193,8 +159,7 @@ if __name__ == "__main__":
 
 	receivers = [] #這邊填寫你自己的Email.
 
-	n = Fund_Rich_Notifier(conf["user_id"], conf["password"], conf["stp_user"], conf["stp_password"])	
+	n = Fund_Rich_Notifier(conf["user_id"], conf["password"])	
 	res = n.send_request()
 	parsed_res = n.parse_result(res)
 	html = n.transition_to_html(parsed_res)
-	n.send_mail(html, receivers)
