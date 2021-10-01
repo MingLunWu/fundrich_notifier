@@ -1,4 +1,4 @@
-# fundrich_notifier 基富通
+# fundrich_notifier 基富通價格通知
 
 | Test Status | [![Coverage Status](https://coveralls.io/repos/github/MingLunWu/fund_notification/badge.svg?branch=master)](https://coveralls.io/github/MingLunWu/fund_notification?branch=master) |
 |:---:|:---:|
