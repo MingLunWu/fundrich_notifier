@@ -31,4 +31,4 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         mailgun_domain: ${{ secrets.MAILGUN_DOMAIN }}
         mailgun_token: ${{ secrets.MAILGUN_TOKEN }}
-        recipient: "allen6997535@gmail.com"
+        recipient: ${{ secrets.RECIPIENT }}
