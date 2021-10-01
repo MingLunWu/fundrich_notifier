@@ -36,7 +36,8 @@ jobs:
         python -m pytest -v --cov=./src
     
     - name: Coveralls GitHub Action
-      uses: coverallsapp/github-action@1.1.3
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          coveralls --service=github
 
