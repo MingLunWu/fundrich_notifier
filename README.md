@@ -13,6 +13,8 @@
 + 獲利金額
 + 獲利率
 
+![demo image](https://github.com/MingLunWu/fundrich_notifier/blob/master/image/example.png?raw=true)
+
 # How to Use
 
 ## 取得 Mailgun 相關資訊
