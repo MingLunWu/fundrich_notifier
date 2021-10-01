@@ -1,13 +1,11 @@
 # -*- coding: UTF-8 -*-
 
-from bs4 import BeautifulSoup
+from typing import Dict, List
 import requests
 import json
-import configparser
-import smtplib
-from email.mime.text import MIMEText
-from email.header import Header
 import collections
+from datetime import date
+import os
 
 class Fund_Rich_Notifier():
 	
@@ -100,66 +98,123 @@ class Fund_Rich_Notifier():
 			res_fund = self.s.post(self.GET_TRADE_URL,headers= header_check, json=payload_data_check)
 			res_fund = json.loads(res_fund.text)
 			return res_fund
-	
-	def parse_result(self, transaction_json):
-		"""
-		Parse useful information from original transaction json data.
-		:return: List of fund informaiton.
-		"""
-		assert type(transaction_json) is dict
-		result = list()
-		res_detail = transaction_json["Data"]["TRADE_LISTS"]
-		for fund in res_detail:
-			fund_name = fund["FUND_SH_NM"] # 基金名稱
-			etd_bal_cost = fund["ETD_BAL_COST"] # 單筆申購本金
-			rsp_etd_bal_cost = fund["RSP_ETD_BAL_COST"] # 定期定額本金
-			gl_amt = fund["GL_AMT"] # 單筆申購參考損益
-			rsp_gl_amt = fund["RSP_GL_AMT"] # 定期定額參考損益
 
-			bal_cost = etd_bal_cost+rsp_etd_bal_cost # 總本金
-			amt = gl_amt + rsp_gl_amt # 總損益
-			rate = amt / bal_cost
+def parse_result(transaction_json: Dict) -> List:
+	"""Parsed the required information from the response of Fundrich
 
-			result.append({"name": fund_name, "bal_cost": bal_cost, "amt": amt, "rate":round(rate*100, 2)})
+	Args:
+		transaction_json (Dict): The orignial response of Fundrich
 
-		return result
-	
-	def transition_to_html(self, json_data):
-		html = """<table border="1px solid" style="text-align:center">"""
-		translation_dict = collections.OrderedDict()
-		translation_dict["name"]="基金名稱"
-		translation_dict["bal_cost"]="總庫存成本"
-		translation_dict["amt"]="總獲利"
-		translation_dict["rate"]="總獲利率"
+	Returns:
+		List: List of fund informaiton, each element is a dictionary, 
+		containing the following fileds:
+			+ name: The name of the fund
+			+ bal_cost: Total principle (本金總額)
+			+ amt: Total profit and loss (損益總額)
+			+ rate: Rate of return (獲益率)
+
+	"""	
+	assert type(transaction_json) is dict
+	result = list()
+	res_detail = transaction_json["Data"]["TRADE_LISTS"]
+	for fund in res_detail:
+		fund_name = fund["FUND_SH_NM"] # 基金名稱
+		etd_bal_cost = fund["ETD_BAL_COST"] # 單筆申購本金
+		rsp_etd_bal_cost = fund["RSP_ETD_BAL_COST"] # 定期定額本金
+		gl_amt = fund["GL_AMT"] # 單筆申購參考損益
+		rsp_gl_amt = fund["RSP_GL_AMT"] # 定期定額參考損益
+
+		bal_cost = etd_bal_cost+rsp_etd_bal_cost # 總本金
+		amt = gl_amt + rsp_gl_amt # 總損益
+		rate = amt / bal_cost
+
+		result.append({"name": fund_name, "bal_cost": bal_cost, "amt": amt, "rate":round(rate*100, 2)})
+
+	return result
 		
+def transition_to_html(json_data) -> str:
+	"""Convert the parsed result into html format
 
-		for a_fund in json_data:
-			for a_key in translation_dict.keys():
-				if a_key != "rate" and a_key != "amt":
-					html+="""<tr><td>{}</td><td>{}</td></tr>""".format(translation_dict[a_key], a_fund[a_key])
-				elif a_key == "rate":
-					if a_fund[a_key] < 0:
-						html+="""<tr><td>{}</td><td><font color="green">{}%</font></td></tr>""".format(translation_dict[a_key], a_fund[a_key])
-					else:
-						html+="""<tr><td>{}</td><td><font color="red">{}%</font></td></tr>""".format(translation_dict[a_key], a_fund[a_key])
+	Args:
+		json_data (str): Fund information from parse_result()
+
+	Returns:
+		str: Data in html format
+	"""	
+	html = """<table border="1px solid" style="text-align:center">"""
+	translation_dict = collections.OrderedDict()
+	translation_dict["name"]="基金名稱"
+	translation_dict["bal_cost"]="總庫存成本"
+	translation_dict["amt"]="總獲利"
+	translation_dict["rate"]="總獲利率"
+	
+	# xxx: 醜！需要被refactor
+	for a_fund in json_data:
+		for a_key in translation_dict.keys():
+			if a_key != "rate" and a_key != "amt":
+				html+="""<tr><td>{}</td><td>{}</td></tr>""".format(translation_dict[a_key], a_fund[a_key])
+			elif a_key == "rate":
+				if a_fund[a_key] < 0:
+					html+="""<tr><td>{}</td><td><font color="green">{}%</font></td></tr>""".format(translation_dict[a_key], a_fund[a_key])
 				else:
-					if a_fund[a_key] < 0:
-						html+="""<tr><td>{}</td><td><font color="green">{}</font></td></tr>""".format(translation_dict[a_key], a_fund[a_key])
-					else:
-						html+="""<tr><td>{}</td><td><font color="red">{}</font></td></tr>""".format(translation_dict[a_key], a_fund[a_key])
-		html+="""</table>"""
-		return html
-	
+					html+="""<tr><td>{}</td><td><font color="red">{}%</font></td></tr>""".format(translation_dict[a_key], a_fund[a_key])
+			else:
+				if a_fund[a_key] < 0:
+					html+="""<tr><td>{}</td><td><font color="green">{}</font></td></tr>""".format(translation_dict[a_key], a_fund[a_key])
+				else:
+					html+="""<tr><td>{}</td><td><font color="red">{}</font></td></tr>""".format(translation_dict[a_key], a_fund[a_key])
+	html+="""</table>"""
+	return html
+
+def send_mail_by_mailgun(html_data: str, mailgun_domain:str, mailgun_token:str, recipient: str):
+	"""Send mail via Mailgun service
+
+	Args:
+		html_data (str): Html data generated by transition_to_html()
+		mailgun_domain: Mailgun domain (Please refer to README.md)
+		mailgun_token: Mailgun token (Please refer to README.md)
+		recipient: The email address of recipient
+
+	Returns:
+		str: html data
+	"""
+	return requests.post(
+		f"https://api.mailgun.net/v3/{mailgun_domain}/messages",
+		auth=("api", mailgun_token),
+		data={"from": "基富通自動通知 <mailgun@{}>".format(mailgun_domain),
+			"to": [recipient],
+			"subject": "自動通知 - {} 基金資訊".format(date.today().strftime("%Y/%m/%d")),
+			"html": html_data})
+
+def check_env_var_exist(var_name: str) -> bool:
+	"""Confirm that all required environment variables exist
+
+
+	Args:
+		var_name (str): The name of environment variable
+
+	Raises:
+		KeyError: If the environement variable is not exists, assert KeyError
+
+	Returns:
+		bool: True means the variables exist, otherwise it will be assert error
+	"""
+	if os.environ.get(var_name) is None:
+		raise KeyError("Environment Variable: {} must be set!".format(var_name))
 		
+	return True
+
+def check() -> bool:
+	ESSENTIAL_VAR = ['user_id', 'password', 'mailgun_domain', 'mailgun_token', 'recipient']
+	for var in ESSENTIAL_VAR:
+		check_env_var_exist(var)
+	return True
 
 if __name__ == "__main__":
-	conf = configparser.ConfigParser()
-	conf.read("/Users/minglunwu/Documents/fund_notification/config.ini", encoding='utf-8')
-	conf = dict(conf.items('password'))
-
-	receivers = [] #這邊填寫你自己的Email.
-
-	n = Fund_Rich_Notifier(conf["user_id"], conf["password"])	
-	res = n.send_request()
-	parsed_res = n.parse_result(res)
-	html = n.transition_to_html(parsed_res)
+	
+	if check():
+		n = Fund_Rich_Notifier(os.environ["user_id"], os.environ["password"])	
+		res = n.send_request()
+		parsed_res = parse_result(res)
+		html = transition_to_html(parsed_res)
+		print(send_mail_by_mailgun(html, os.environ['mailgun_domain'], os.environ['mailgun_token'], os.environ['recipient']))
