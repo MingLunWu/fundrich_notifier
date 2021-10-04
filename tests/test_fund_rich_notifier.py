@@ -1,6 +1,6 @@
 from typing import Dict, Type
 
-from src.fund_rich_notifier import check, parse_result, Fund_Rich_Notifier, transition_to_html, check_env_var_exist
+from src.fund_rich_notifier import check, parse_result, Fund_Rich_Notifier, transition_to_html, check_env_var_exist, send_mail_by_mailgun
 from collections import namedtuple
 from pytest_mock import mocker
 import pytest
@@ -157,6 +157,11 @@ def test_parse_result(mock_response):
     assert result[0]['bal_cost'] == 41220.0
     assert result[0]['amt'] == 790.0
     assert result[0]['rate'] == 1.92
+
+def test_send_mail_by_mailgun(mocker):
+    mocker.patch('requests.post', return_value="mock_success")
+    result = send_mail_by_mailgun("test", "test_domain", "token", "domain")
+    assert result=="mock_success"
 
 def test_check_env_var_exist():
     TESTING_KEY = "test"
