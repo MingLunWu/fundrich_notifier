@@ -5,6 +5,7 @@ from collections import namedtuple
 from pytest_mock import mocker
 import pytest
 import os
+import requests
 
 @pytest.fixture()
 def mock_response() -> Dict:
@@ -137,13 +138,18 @@ class Test_Fund_rich_notifier():
         assert fr.Password == EXPECTED_PASSWORD
     
     def test_send_request(self, mock_fund_rich_notifier, mocker):
-        # XXX: 不確定這樣的做法是不是正確的，單純先把request處理的部份 mock 起來
-        mocker_method = mocker.patch.object(
-            mock_fund_rich_notifier,
-            "send_request"
-        )
-        mock_fund_rich_notifier.send_request()
-        assert mocker_method.called
+        with pytest.raises(AssertionError):
+            mock_obj = Fund_Rich_Notifier(None, "password")
+            mock_obj.send_request()
+            mock_obj2 = Fund_Rich_Notifier("A123456789", None)
+            mock_obj2.send_request()
+        
+        with pytest.raises(AssertionError, match="登入失敗！帳號密碼可能輸入錯誤！請重新確認！"):
+            mocker.patch(
+                "requests.Session.post",
+                return_value=requests.Response())
+            mock_fund_rich_notifier.send_request()
+
 
 def test_transition_to_html():
     with pytest.raises(TypeError):
