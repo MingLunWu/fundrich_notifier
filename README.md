@@ -2,6 +2,7 @@
 
 | Test Status | [![Coverage Status](https://coveralls.io/repos/github/MingLunWu/fund_notification/badge.svg?branch=master)](https://coveralls.io/github/MingLunWu/fund_notification?branch=master) |
 |:---:|:---:|
+| Release | ![Release Coverage](https://img.shields.io/github/v/release/MingLunWu/fundrich_notifier?style=flat-square) |
 
 
 `fundrich_notifier` 是針對[基富通](https://www.fundrich.com.tw) 使用者所開發的小工具。
@@ -12,6 +13,8 @@
 + 庫存成本
 + 獲利金額
 + 獲利率
+
+![demo image](https://github.com/MingLunWu/fundrich_notifier/blob/master/image/example.png?raw=true)
 
 # How to Use
 

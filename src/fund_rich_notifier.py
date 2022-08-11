@@ -176,7 +176,7 @@ def send_mail_by_mailgun(html_data: str, mailgun_domain:str, mailgun_token:str, 
 		recipient: The email address of recipient
 
 	Returns:
-		str: html data
+		str: requests.resonse
 	"""
 	return requests.post(
 		f"https://api.mailgun.net/v3/{mailgun_domain}/messages",
