@@ -218,4 +218,4 @@ if __name__ == "__main__":
 		parsed_res = parse_result(res)
 		html = transition_to_html(parsed_res)
 		print(send_mail_by_mailgun(html, os.environ['mailgun_domain'], os.environ['mailgun_token'], os.environ['recipient']))
-		print("the report has been sent to your mailbox")
+		
